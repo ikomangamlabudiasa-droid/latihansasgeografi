@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuis Geografi - SAS Ganjil 2026/2027</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 30px 15px;
+  }
+  .container {
+    background: #ffffff;
+    width: 100%;
+    max-width: 800px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
+  header {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: #fff;
+    padding: 25px 30px;
+    text-align: center;
+  }
+  header h1 { font-size: 1.4rem; margin-bottom: 6px; }
+  header p { font-size: 0.9rem; opacity: 0.85; }
+  .progress-wrap { height: 8px; background: #e0e0e0; }
+  .progress-bar {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    transition: width 0.3s ease;
+  }
+  .quiz-body { padding: 25px 30px 30px; }
+
+  /* ====== Start Screen ====== */
+  #startSection { text-align: center; }
+  #startSection h2 { font-size: 1.3rem; color: #0f2027; margin-bottom: 8px; }
+  #startSection p.sub { font-size: 0.9rem; color: #666; margin-bottom: 22px; }
+  .form-group { text-align: left; margin-bottom: 16px; }
+  .form-group label {
+    display: block; font-size: 0.9rem; font-weight: 600;
+    color: #203a43; margin-bottom: 6px;
+  }
+  .form-group input, .form-group select {
+    width: 100%; padding: 12px 14px;
+    border: 2px solid #d9e2ec; border-radius: 10px;
+    font-size: 0.98rem; font-family: inherit;
+    background: #f8fafc; transition: 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus {
+    outline: none; border-color: #0072ff; background: #eef6ff;
+  }
+  .form-error {
+    color: #c62828; font-size: 0.85rem; margin-top: 6px;
+    display: none; text-align: left;
+  }
+
+  /* ====== Quiz ====== */
+  .question-meta {
+    display: flex; justify-content: space-between;
+    font-size: 0.85rem; color: #666;
+    margin-bottom: 12px; font-weight: 600;
+  }
+  .question-text {
+    font-size: 1.1rem; font-weight: 600;
+    color: #1a1a1a; margin-bottom: 20px; line-height: 1.5;
+  }
+  .options { display: flex; flex-direction: column; gap: 12px; }
+  .option {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px; border: 2px solid #d9e2ec;
+    border-radius: 10px; cursor: pointer;
+    transition: all 0.2s; background: #f8fafc;
+    font-size: 0.98rem;
+  }
+  .option:hover { border-color: #0072ff; background: #eef6ff; }
+  .option.selected { border-color: #0072ff; background: #e3f0ff; }
+  .option.correct { border-color: #2e7d32; background: #e8f5e9; }
+  .option.wrong { border-color: #c62828; background: #ffebee; }
+  .option.disabled { cursor: not-allowed; }
+  .option-letter {
+    width: 32px; height: 32px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: #0072ff; color: #fff; border-radius: 50%;
+    font-weight: 700; font-size: 0.9rem;
+  }
+  .option.correct .option-letter { background: #2e7d32; }
+  .option.wrong .option-letter { background: #c62828; }
+
+  .btn {
+    display: inline-block; padding: 13px 28px;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: 0.2s;
+  }
+  .btn-primary { background: #0072ff; color: #fff; }
+  .btn-primary:hover { background: #005bb5; }
+  .btn-primary:disabled { background: #b0c4de; cursor: not-allowed; }
+  .btn-secondary { background: #6c757d; color: #fff; }
+  .btn-secondary:hover { background: #565e64; }
+  .actions { margin-top: 24px; display: flex; justify-content: flex-end; gap: 10px; }
+  #startSection .actions { justify-content: center; margin-top: 22px; }
+
+  /* ====== Result ====== */
+  .result { display: none; text-align: center; padding: 10px 0 20px; }
+  .result h2 { font-size: 1.5rem; color: #0f2027; margin-bottom: 10px; }
+  .student-info {
+    background: #f1f6fb; border: 1px solid #d9e2ec;
+    border-radius: 10px; padding: 12px 16px;
+    margin: 0 auto 18px; max-width: 420px;
+    text-align: left; font-size: 0.95rem; color: #203a43;
+  }
+  .student-info div { display: flex; justify-content: space-between; padding: 4px 0; }
+  .student-info .lbl { color: #666; font-weight: 600; }
+  .student-info .val { font-weight: 700; }
+  .score-circle {
+    width: 170px; height: 170px; border-radius: 50%;
+    margin: 20px auto; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: conic-gradient(#2e7d32 0%, #2e7d32 var(--p,0%), #e0e0e0 var(--p,0%), #e0e0e0 100%);
+    position: relative;
+  }
+  .score-circle::before {
+    content: ""; position: absolute; inset: 14px;
+    background: #fff; border-radius: 50%;
+  }
+  .score-inner { position: relative; z-index: 1; }
+  .score-value { font-size: 2.6rem; font-weight: 800; color: #0f2027; }
+  .score-label { font-size: 0.85rem; color: #666; margin-top: 4px; }
+  .result-detail { font-size: 1rem; color: #444; margin: 8px 0 20px; }
+
+  /* ====== Review ====== */
+  .review { display: none; margin-top: 25px; text-align: left; }
+  .review h3 {
+    font-size: 1.05rem; margin-bottom: 14px; color: #0f2027;
+    border-bottom: 2px solid #0072ff; padding-bottom: 8px;
+  }
+  .review-item {
+    padding: 12px 14px; border-radius: 8px;
+    margin-bottom: 10px; font-size: 0.9rem; line-height: 1.45;
+  }
+  .review-item.ok { background: #e8f5e9; border-left: 4px solid #2e7d32; }
+  .review-item.no { background: #ffebee; border-left: 4px solid #c62828; }
+  .review-item .q { font-weight: 600; margin-bottom: 4px; }
+  .review-item .ans { color: #2e7d32; }
+  .review-item .wrong-ans { color: #c62828; }
+  .footer-note {
+    text-align: center; font-size: 0.8rem;
+    color: #888; padding: 12px;
+  }
+  @media (max-width: 520px) {
+    .quiz-body { padding: 18px; }
+    header { padding: 18px; }
+    .question-text { font-size: 1rem; }
+    .option { font-size: 0.9rem; padding: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Kuis Geografi Kelas X</h1>
+    <p>Sumatif Akhir Semester Ganjil 2026/2027 &middot; Pilihan Ganda (25 Soal)</p>
+  </header>
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+  <div class="quiz-body">
+    <!-- ====== Start Section ====== -->
+    <div id="startSection">
+      <h2>Selamat Datang! 👋</h2>
+      <p class="sub">Isi nama dan kelas terlebih dahulu sebelum memulai kuis.</p>
+      <div class="form-group">
+        <label for="namaInput">Nama Lengkap</label>
+        <input type="text" id="namaInput" placeholder="Contoh: Ahmad Fauzi" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label for="kelasInput">Kelas</label>
+        <select id="kelasInput">
+          <option value="">-- Pilih Kelas --</option>
+          <option value="X-1">X-1</option>
+          <option value="X-2">X-2</option>
+          <option value="X-3">X-3</option>
+          <option value="X-4">X-4</option>
+          <option value="X-5">X-5</option>
+          <option value="X-6">X-6</option>
+          <option value="X-7">X-7</option>
+          <option value="X-8">X-8</option>
+          <option value="X-9">X-9</option>
+          <option value="X-10">X-10</option>
+        </select>
+      </div>
+      <div class="form-error" id="formError">Nama dan kelas wajib diisi sebelum memulai kuis.</div>
+      <div class="actions">
+        <button class="btn btn-primary" id="startBtn">Mulai Kuis →</button>
+      </div>
+    </div>
+
+    <!-- ====== Quiz Section ====== -->
+    <div id="quizSection" style="display:none;">
+      <div class="question-meta">
+        <span id="qCounter">Soal 1 / 25</span>
+        <span id="scoreLive">Skor: 0</span>
+      </div>
+      <div class="question-text" id="questionText"></div>
+      <div class="options" id="optionsBox"></div>
+      <div class="actions">
+        <button class="btn btn-primary" id="nextBtn" disabled>Soal Berikutnya →</button>
+      </div>
+    </div>
+
+    <!-- ====== Result Section ====== -->
+    <div class="result" id="resultSection">
+      <h2>Kuis Selesai! 🎉</h2>
+      <div class="student-info" id="studentInfo"></div>
+      <div class="score-circle" id="scoreCircle">
+        <div class="score-inner">
+          <div class="score-value" id="finalScoreValue">0</div>
+          <div class="score-label">dari 100</div>
+        </div>
+      </div>
+      <div class="result-detail" id="resultDetail"></div>
+      <div class="actions" style="justify-content:center;">
+        <button class="btn btn-primary" id="reviewBtn">Lihat Pembahasan</button>
+        <button class="btn btn-secondary" id="restartBtn">Ulangi Kuis</button>
+      </div>
+
+      <div class="review" id="reviewSection">
+        <h3>Pembahasan Jawaban</h3>
+        <div id="reviewList"></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-note">Mata Pelajaran Geografi &middot; Kelas X &middot; Semester Ganjil</div>
+</div>
+
+<script>
+/* ====== Data Soal Pilihan Ganda (25 soal) ====== */
+const questions = [
+  {
+    q: "Ilmu yang mempelajari tentang bumi, fenomena alam, dan interaksi manusia dengan lingkungannya disebut...",
+    options: ["Geologi", "Geografi", "Demografi", "Biologi", "Antropologi"],
+    answer: 1
+  },
+  {
+    q: "Kata \"geografi\" berasal dari bahasa Yunani, yaitu geo dan graphein. Geo berarti...",
+    options: ["Air", "Udara", "Bumi", "Manusia", "Lingkungan"],
+    answer: 2
+  },
+  {
+    q: "Objek studi geografi yang meliputi seluruh permukaan bumi secara keseluruhan disebut objek...",
+    options: ["Material", "Formal", "Fungsional", "Spasial", "Ekologis"],
+    answer: 3
+  },
+  {
+    q: "Pendekatan geografi yang menekankan pada persamaan dan perbedaan fenomena di permukaan bumi adalah pendekatan...",
+    options: ["Keruangan", "Kelingkungan", "Kompleks wilayah", "Spasial", "Ekologis"],
+    answer: 0
+  },
+  {
+    q: "Letak suatu wilayah yang ditentukan berdasarkan posisi garis lintang dan garis bujur disebut letak...",
+    options: ["Geografis", "Astronomis", "Strategis", "Ekonomis", "Politik"],
+    answer: 1
+  },
+  {
+    q: "Indonesia terletak di antara dua benua, yaitu...",
+    options: ["Asia dan Eropa", "Asia dan Australia", "Asia dan Afrika", "Australia dan Amerika", "Eropa dan Afrika"],
+    answer: 1
+  },
+  {
+    q: "Indonesia terletak di antara dua samudra besar, yaitu...",
+    options: ["Hindia dan Atlantik", "Pasifik dan Atlantik", "Hindia dan Pasifik", "Arktik dan Hindia", "Pasifik dan Arktik"],
+    answer: 2
+  },
+  {
+    q: "Garis khayal yang membagi bumi menjadi belahan utara dan selatan disebut...",
+    options: ["Garis bujur", "Garis lintang", "Garis khatulistiwa", "Garis balik", "Garis meridian"],
+    answer: 2
+  },
+  {
+    q: "Iklim yang dipengaruhi oleh letak geografis Indonesia yang berada di daerah tropis adalah...",
+    options: ["Iklim subtropis", "Iklim sedang", "Iklim tropis", "Iklim kutub", "Iklim gurun"],
+    answer: 2
+  },
+  {
+    q: "Angin muson yang bertiup dari Asia ke Australia pada bulan Oktober–April membawa musim...",
+    options: ["Kemarau", "Hujan", "Dingin", "Salju", "Panas"],
+    answer: 1
+  },
+  {
+    q: "Teori pembentukan tata surya yang menyatakan bahwa tata surya berasal dari gas dan debu yang berputar disebut teori...",
+    options: ["Nebula", "Planetesimal", "Pasang surut", "Big Bang", "Bintang kembar"],
+    answer: 0
+  },
+  {
+    q: "Planet yang terletak paling dekat dengan Matahari adalah...",
+    options: ["Venus", "Bumi", "Merkurius", "Mars", "Jupiter"],
+    answer: 2
+  },
+  {
+    q: "Bumi memiliki satelit alami yang bernama...",
+    options: ["Matahari", "Bulan", "Bintang", "Komet", "Asteroid"],
+    answer: 1
+  },
+  {
+    q: "Lapisan bumi yang paling luar dan bersifat padat disebut...",
+    options: ["Inti bumi", "Mantel", "Kerak bumi", "Atmosfer", "Litosfer"],
+    answer: 2
+  },
+  {
+    q: "Batuan yang terbentuk dari pendinginan magma atau lava disebut batuan...",
+    options: ["Sedimen", "Metamorf", "Beku", "Kapur", "Pasir"],
+    answer: 2
+  },
+  {
+    q: "Gempa bumi yang disebabkan oleh pergerakan lempeng tektonik disebut gempa...",
+    options: ["Vulkanik", "Tektonik", "Runtuhan", "Buatan", "Susulan"],
+    answer: 1
+  },
+  {
+    q: "Alat yang digunakan untuk mencatat getaran gempa bumi adalah...",
+    options: ["Barometer", "Termometer", "Seismograf", "Anemometer", "Higrometer"],
+    answer: 2
+  },
+  {
+    q: "Proses pengikisan permukaan bumi oleh air, angin, atau es disebut...",
+    options: ["Erosi", "Sedimentasi", "Pelapukan", "Abrasi", "Deflasi"],
+    answer: 0
+  },
+  {
+    q: "Sungai yang sumber airnya berasal dari mata air pegunungan dan mengalir sepanjang tahun disebut sungai...",
+    options: ["Episodik", "Periodik", "Permanen", "Musiman", "Sementara"],
+    answer: 2
+  },
+  {
+    q: "Danau yang terbentuk akibat aktivitas vulkanik disebut danau...",
+    options: ["Tektonik", "Vulkanik", "Karst", "Glasial", "Buatan"],
+    answer: 1
+  },
+  {
+    q: "Lapisan atmosfer yang menjadi tempat terjadinya cuaca dan iklim adalah...",
+    options: ["Troposfer", "Stratosfer", "Mesosfer", "Termosfer", "Eksosfer"],
+    answer: 0
+  },
+  {
+    q: "Alat untuk mengukur suhu udara adalah...",
+    options: ["Barometer", "Termometer", "Higrometer", "Anemometer", "Penakar hujan"],
+    answer: 1
+  },
+  {
+    q: "Iklim di Indonesia yang dipengaruhi oleh angin muson disebut iklim...",
+    options: ["Tropis", "Muson", "Laut", "Darat", "Gurun"],
+    answer: 1
+  },
+  {
+    q: "Salah satu dampak positif letak geografis Indonesia adalah...",
+    options: ["Sering terjadi gempa", "Menjadi jalur perdagangan internasional", "Rawan bencana alam", "Iklim tidak stabil", "Sulit berkomunikasi"],
+    answer: 1
+  },
+  {
+    q: "Upaya untuk mengurangi dampak bencana gempa bumi dapat dilakukan dengan...",
+    options: ["Membangun rumah di lereng gunung", "Membuat konstruksi bangunan tahan gempa", "Menebang hutan secara liar", "Membuang sampah di sungai", "Menambang pasir secara besar-besaran"],
+    answer: 1
+  }
+];
+
+const LETTERS = ['A', 'B', 'C', 'D', 'E'];
+
+/* ====== State ====== */
+let currentIndex = 0;
+let selectedOption = null;
+let userAnswers = new Array(questions.length).fill(null);
+let answered = new Array(questions.length).fill(false);
+let score = 0;
+let student = { nama: '', kelas: '' };
+
+/* ====== Element refs ====== */
+const startSection = document.getElementById('startSection');
+const quizSection = document.getElementById('quizSection');
+const resultSection = document.getElementById('resultSection');
+const namaInput = document.getElementById('namaInput');
+const kelasInput = document.getElementById('kelasInput');
+const formError = document.getElementById('formError');
+const startBtn = document.getElementById('startBtn');
+const questionText = document.getElementById('questionText');
+const optionsBox = document.getElementById('optionsBox');
+const qCounter = document.getElementById('qCounter');
+const scoreLive = document.getElementById('scoreLive');
+const nextBtn = document.getElementById('nextBtn');
+const progressBar = document.getElementById('progressBar');
+const finalScoreValue = document.getElementById('finalScoreValue');
+const resultDetail = document.getElementById('resultDetail');
+const scoreCircle = document.getElementById('scoreCircle');
+const reviewBtn = document.getElementById('reviewBtn');
+const restartBtn = document.getElementById('restartBtn');
+const reviewSection = document.getElementById('reviewSection');
+const reviewList = document.getElementById('reviewList');
+const studentInfo = document.getElementById('studentInfo');
+
+/* ====== Functions ====== */
+function renderQuestion() {
+  const q = questions[currentIndex];
+  questionText.textContent = q.q;
+  qCounter.textContent = `Soal ${currentIndex + 1} / ${questions.length}`;
+  scoreLive.textContent = `Skor: ${score}`;
+  progressBar.style.width = `${(currentIndex / questions.length) * 100}%`;
+
+  optionsBox.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.dataset.index = i;
+    div.innerHTML = `<span class="option-letter">${LETTERS[i]}</span><span>${opt}</span>`;
+
+    if (answered[currentIndex]) {
+      div.classList.add('disabled');
+      const correctIdx = q.answer;
+      const chosen = userAnswers[currentIndex];
+      if (i === correctIdx) div.classList.add('correct');
+      if (chosen === i && chosen !== correctIdx) div.classList.add('wrong');
+    } else {
+      if (selectedOption === i) div.classList.add('selected');
+      div.addEventListener('click', () => selectOption(i));
+    }
+    optionsBox.appendChild(div);
+  });
+
+  nextBtn.disabled = selectedOption === null && !answered[currentIndex];
+  nextBtn.textContent = currentIndex === questions.length - 1
+    ? (answered[currentIndex] ? 'Lihat Hasil →' : 'Selesai →')
+    : (answered[currentIndex] ? 'Soal Berikutnya →' : 'Jawab & Lanjut →');
+}
+
+function selectOption(idx) {
+  if (answered[currentIndex]) return;
+  selectedOption = idx;
+  renderQuestion();
+}
+
+function lockAndNext() {
+  if (!answered[currentIndex]) {
+    if (selectedOption === null) return;
+    userAnswers[currentIndex] = selectedOption;
+    answered[currentIndex] = true;
+    if (selectedOption === questions[currentIndex].answer) {
+      score += 4; // 25 soal x 4 = 100
+      scoreLive.textContent = `Skor: ${score}`;
+    }
+    renderQuestion();
+    nextBtn.textContent = currentIndex === questions.length - 1 ? 'Lihat Hasil →' : 'Soal Berikutnya →';
+    nextBtn.disabled = false;
+    showFeedback();
+    return;
+  }
+  if (currentIndex < questions.length - 1) {
+    currentIndex++;
+    selectedOption = null;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showFeedback() {
+  const q = questions[currentIndex];
+  const chosen = userAnswers[currentIndex];
+  const opts = optionsBox.children;
+  for (let i = 0; i < opts.length; i++) {
+    opts[i].classList.add('disabled');
+    opts[i].style.pointerEvents = 'none';
+    if (i === q.answer) opts[i].classList.add('correct');
+    if (i === chosen && chosen !== q.answer) opts[i].classList.add('wrong');
+  }
+}
+
+function showResult() {
+  progressBar.style.width = '100%';
+  quizSection.style.display = 'none';
+  resultSection.style.display = 'block';
+
+  // Tampilkan identitas siswa
+  studentInfo.innerHTML = `
+    <div><span class="lbl">Nama</span><span class="val">${escapeHtml(student.nama)}</span></div>
+    <div><span class="lbl">Kelas</span><span class="val">${escapeHtml(student.kelas)}</span></div>
+  `;
+
+  finalScoreValue.textContent = score;
+  const percent = score;
+  scoreCircle.style.setProperty('--p', percent + '%');
+
+  let predikat, emoji;
+  if (score >= 85) { predikat = 'Sangat Baik'; emoji = '🌟'; }
+  else if (score >= 70) { predikat = 'Baik'; emoji = '👍'; }
+  else if (score >= 55) { predikat = 'Cukup'; emoji = '📖'; }
+  else { predikat = 'Perlu Belajar Lagi'; emoji = '💪'; }
+
+  const benar = score / 4;
+  const salah = questions.length - benar;
+  resultDetail.innerHTML = `
+    ${emoji} <strong>Predikat: ${predikat}</strong><br>
+    Jawaban Benar: <strong>${benar}</strong> dari ${questions.length} soal<br>
+    Jawaban Salah: <strong>${salah}</strong><br>
+    Nilai Akhir: <strong>${score}</strong> / 100
+  `;
+
+  buildReview();
+}
+
+function buildReview() {
+  reviewList.innerHTML = '';
+  questions.forEach((q, idx) => {
+    const chosen = userAnswers[idx];
+    const isCorrect = chosen === q.answer;
+    const div = document.createElement('div');
+    div.className = 'review-item ' + (isCorrect ? 'ok' : 'no');
+    div.innerHTML = `
+      <div class="q">${idx + 1}. ${q.q}</div>
+      <div>Jawabanmu: <span class="${isCorrect ? 'ans' : 'wrong-ans'}">${LETTERS[chosen]}. ${q.options[chosen]}</span></div>
+      ${!isCorrect ? `<div>Jawaban benar: <span class="ans">${LETTERS[q.answer]}. ${q.options[q.answer]}</span></div>` : ''}
+    `;
+    reviewList.appendChild(div);
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function resetState() {
+  currentIndex = 0;
+  selectedOption = null;
+  userAnswers = new Array(questions.length).fill(null);
+  answered = new Array(questions.length).fill(false);
+  score = 0;
+}
+
+function startQuiz() {
+  const nama = namaInput.value.trim();
+  const kelas = kelasInput.value;
+
+  if (!nama || !kelas) {
+    formError.style.display = 'block';
+    return;
+  }
+  formError.style.display = 'none';
+  student.nama = nama;
+  student.kelas = kelas;
+
+  startSection.style.display = 'none';
+  resultSection.style.display = 'none';
+  reviewSection.style.display = 'none';
+  quizSection.style.display = 'block';
+  progressBar.style.width = '0%';
+  scoreLive.textContent = 'Skor: 0';
+  resetState();
+  renderQuestion();
+}
+
+function restart() {
+  // Kembali ke halaman input nama & kelas, reset semua
+  resultSection.style.display = 'none';
+  reviewSection.style.display = 'none';
+  quizSection.style.display = 'none';
+  startSection.style.display = 'block';
+  namaInput.value = '';
+  kelasInput.value = '';
+  formError.style.display = 'none';
+  progressBar.style.width = '0%';
+  reviewBtn.textContent = 'Lihat Pembahasan';
+  resetState();
+}
+
+/* ====== Event Listeners ====== */
+startBtn.addEventListener('click', startQuiz);
+namaInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    kelasInput.focus();
+  }
+});
+nextBtn.addEventListener('click', lockAndNext);
+
+reviewBtn.addEventListener('click', () => {
+  if (reviewSection.style.display === 'block') {
+    reviewSection.style.display = 'none';
+    reviewBtn.textContent = 'Lihat Pembahasan';
+  } else {
+    reviewSection.style.display = 'block';
+    reviewBtn.textContent = 'Sembunyikan Pembahasan';
+  }
+});
+
+restartBtn.addEventListener('click', restart);
+</script>
+</body>
+</html>
